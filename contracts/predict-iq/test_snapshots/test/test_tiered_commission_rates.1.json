@@ -71,6 +71,25 @@
                     },
                     {
                       "key": {
+                        "symbol": "max_confidence_bps"
+                      },
+                      "val": {
+                        "i128": {
+                          "hi": 0,
+                          "lo": 200
+                        }
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "max_staleness_seconds"
+                      },
+                      "val": {
+                        "u64": 3600
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "min_responses"
                       },
                       "val": {
@@ -96,6 +115,12 @@
                 },
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
+                },
+                {
+                  "u64": 0
+                },
+                {
+                  "u32": 0
                 }
               ]
             }
@@ -144,6 +169,25 @@
                       },
                       "val": {
                         "string": "test_feed"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "max_confidence_bps"
+                      },
+                      "val": {
+                        "i128": {
+                          "hi": 0,
+                          "lo": 200
+                        }
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "max_staleness_seconds"
+                      },
+                      "val": {
+                        "u64": 3600
                       }
                     },
                     {
@@ -173,6 +217,12 @@
                 },
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
+                },
+                {
+                  "u64": 0
+                },
+                {
+                  "u32": 0
                 }
               ]
             }
@@ -225,6 +275,25 @@
                     },
                     {
                       "key": {
+                        "symbol": "max_confidence_bps"
+                      },
+                      "val": {
+                        "i128": {
+                          "hi": 0,
+                          "lo": 200
+                        }
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "max_staleness_seconds"
+                      },
+                      "val": {
+                        "u64": 3600
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "min_responses"
                       },
                       "val": {
@@ -250,6 +319,12 @@
                 },
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
+                },
+                {
+                  "u64": 0
+                },
+                {
+                  "u32": 0
                 }
               ]
             }
@@ -543,6 +618,12 @@
                     },
                     {
                       "key": {
+                        "symbol": "dispute_snapshot_ledger"
+                      },
+                      "val": "void"
+                    },
+                    {
+                      "key": {
                         "symbol": "id"
                       },
                       "val": {
@@ -580,6 +661,25 @@
                           },
                           {
                             "key": {
+                              "symbol": "max_confidence_bps"
+                            },
+                            "val": {
+                              "i128": {
+                                "hi": 0,
+                                "lo": 200
+                              }
+                            }
+                          },
+                          {
+                            "key": {
+                              "symbol": "max_staleness_seconds"
+                            },
+                            "val": {
+                              "u64": 3600
+                            }
+                          },
+                          {
+                            "key": {
                               "symbol": "min_responses"
                             },
                             "val": {
@@ -599,6 +699,30 @@
                     },
                     {
                       "key": {
+                        "symbol": "outcome_stakes"
+                      },
+                      "val": {
+                        "map": []
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "parent_id"
+                      },
+                      "val": {
+                        "u64": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "parent_outcome_idx"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "payout_mode"
                       },
                       "val": {
@@ -611,11 +735,23 @@
                     },
                     {
                       "key": {
+                        "symbol": "pending_resolution_timestamp"
+                      },
+                      "val": "void"
+                    },
+                    {
+                      "key": {
                         "symbol": "resolution_deadline"
                       },
                       "val": {
                         "u64": 2000
                       }
+                    },
+                    {
+                      "key": {
+                        "symbol": "resolved_at"
+                      },
+                      "val": "void"
                     },
                     {
                       "key": {
@@ -643,6 +779,14 @@
                     },
                     {
                       "key": {
+                        "symbol": "token_address"
+                      },
+                      "val": {
+                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "total_staked"
                       },
                       "val": {
@@ -664,7 +808,7 @@
             },
             "ext": "v0"
           },
-          4095
+          518400
         ]
       ],
       [
@@ -741,6 +885,12 @@
                     },
                     {
                       "key": {
+                        "symbol": "dispute_snapshot_ledger"
+                      },
+                      "val": "void"
+                    },
+                    {
+                      "key": {
                         "symbol": "id"
                       },
                       "val": {
@@ -778,6 +928,25 @@
                           },
                           {
                             "key": {
+                              "symbol": "max_confidence_bps"
+                            },
+                            "val": {
+                              "i128": {
+                                "hi": 0,
+                                "lo": 200
+                              }
+                            }
+                          },
+                          {
+                            "key": {
+                              "symbol": "max_staleness_seconds"
+                            },
+                            "val": {
+                              "u64": 3600
+                            }
+                          },
+                          {
+                            "key": {
                               "symbol": "min_responses"
                             },
                             "val": {
@@ -797,6 +966,30 @@
                     },
                     {
                       "key": {
+                        "symbol": "outcome_stakes"
+                      },
+                      "val": {
+                        "map": []
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "parent_id"
+                      },
+                      "val": {
+                        "u64": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "parent_outcome_idx"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "payout_mode"
                       },
                       "val": {
@@ -809,11 +1002,23 @@
                     },
                     {
                       "key": {
+                        "symbol": "pending_resolution_timestamp"
+                      },
+                      "val": "void"
+                    },
+                    {
+                      "key": {
                         "symbol": "resolution_deadline"
                       },
                       "val": {
                         "u64": 2000
                       }
+                    },
+                    {
+                      "key": {
+                        "symbol": "resolved_at"
+                      },
+                      "val": "void"
                     },
                     {
                       "key": {
@@ -841,6 +1046,14 @@
                     },
                     {
                       "key": {
+                        "symbol": "token_address"
+                      },
+                      "val": {
+                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "total_staked"
                       },
                       "val": {
@@ -862,7 +1075,7 @@
             },
             "ext": "v0"
           },
-          4095
+          518400
         ]
       ],
       [
@@ -939,6 +1152,12 @@
                     },
                     {
                       "key": {
+                        "symbol": "dispute_snapshot_ledger"
+                      },
+                      "val": "void"
+                    },
+                    {
+                      "key": {
                         "symbol": "id"
                       },
                       "val": {
@@ -976,6 +1195,25 @@
                           },
                           {
                             "key": {
+                              "symbol": "max_confidence_bps"
+                            },
+                            "val": {
+                              "i128": {
+                                "hi": 0,
+                                "lo": 200
+                              }
+                            }
+                          },
+                          {
+                            "key": {
+                              "symbol": "max_staleness_seconds"
+                            },
+                            "val": {
+                              "u64": 3600
+                            }
+                          },
+                          {
+                            "key": {
                               "symbol": "min_responses"
                             },
                             "val": {
@@ -995,6 +1233,30 @@
                     },
                     {
                       "key": {
+                        "symbol": "outcome_stakes"
+                      },
+                      "val": {
+                        "map": []
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "parent_id"
+                      },
+                      "val": {
+                        "u64": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "parent_outcome_idx"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "payout_mode"
                       },
                       "val": {
@@ -1007,11 +1269,23 @@
                     },
                     {
                       "key": {
+                        "symbol": "pending_resolution_timestamp"
+                      },
+                      "val": "void"
+                    },
+                    {
+                      "key": {
                         "symbol": "resolution_deadline"
                       },
                       "val": {
                         "u64": 2000
                       }
+                    },
+                    {
+                      "key": {
+                        "symbol": "resolved_at"
+                      },
+                      "val": "void"
                     },
                     {
                       "key": {
@@ -1039,6 +1313,14 @@
                     },
                     {
                       "key": {
+                        "symbol": "token_address"
+                      },
+                      "val": {
+                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "total_staked"
                       },
                       "val": {
@@ -1060,7 +1342,7 @@
             },
             "ext": "v0"
           },
-          4095
+          518400
         ]
       ],
       [

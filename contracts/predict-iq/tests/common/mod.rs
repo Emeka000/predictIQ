@@ -1,14 +1,14 @@
 // Common test utilities and helpers
 
 use predict_iq::{PredictIQ, PredictIQClient};
-use soroban_sdk::{token, Address, Env, String, Vec};
+use soroban_sdk::{testutils::Address as _, token, Address, Env, String, Vec};
 
 /// Setup test environment with initialized contract
 pub fn setup() -> (Env, PredictIQClient<'static>, Address) {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, PredictIQ);
+    let contract_id = env.register(PredictIQ, ());
     let client = PredictIQClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -37,16 +37,15 @@ pub fn create_market(
 ) -> u64 {
     let options = Vec::from_array(
         env,
-        [
-            String::from_str(env, "Yes"),
-            String::from_str(env, "No"),
-        ],
+        [String::from_str(env, "Yes"), String::from_str(env, "No")],
     );
 
     let oracle_config = predict_iq::types::OracleConfig {
         oracle_address: Address::generate(env),
         feed_id: String::from_str(env, "test_feed"),
         min_responses: Some(1),
+        max_staleness_seconds: 3600,
+        max_confidence_bps: 200,
     };
 
     client.create_market(
@@ -63,43 +62,6 @@ pub fn create_market(
     )
 }
 
-/// Create a market with custom parameters
-pub fn create_custom_market(
-    client: &PredictIQClient,
-    env: &Env,
-    creator: &Address,
-    token: &Address,
-    description: &str,
-    num_outcomes: u32,
-    deadline: u64,
-    resolution_deadline: u64,
-    tier: predict_iq::types::MarketTier,
-) -> u64 {
-    let mut options = Vec::new(env);
-    for i in 0..num_outcomes {
-        options.push_back(String::from_str(env, &format!("Outcome {}", i)));
-    }
-
-    let oracle_config = predict_iq::types::OracleConfig {
-        oracle_address: Address::generate(env),
-        feed_id: String::from_str(env, "test_feed"),
-        min_responses: Some(1),
-    };
-
-    client.create_market(
-        creator,
-        &String::from_str(env, description),
-        &options,
-        &deadline,
-        &resolution_deadline,
-        &oracle_config,
-        &tier,
-        token,
-        &0,
-        &0,
-    )
-}
-
 /// Setup user with token balance
 pub fn setup_user_with_balance(env: &Env, token: &Address, amount: i128) -> Address {
     let user = Address::generate(env);
@@ -110,6 +72,7 @@ pub fn setup_user_with_balance(env: &Env, token: &Address, amount: i128) -> Addr
 
 /// Advance ledger time
 pub fn advance_time(env: &Env, seconds: u64) {
+    use soroban_sdk::testutils::Ledger;
     env.ledger().with_mut(|li| {
         li.timestamp += seconds;
     });
@@ -123,29 +86,6 @@ pub fn assert_market_status(
 ) {
     let market = client.get_market(&market_id).unwrap();
     assert_eq!(market.status, expected_status);
-}
-
-/// Assert balance change
-pub fn assert_balance_change(
-    env: &Env,
-    token: &Address,
-    user: &Address,
-    expected_delta: i128,
-    operation: impl FnOnce(),
-) {
-    let token_client = token::Client::new(env, token);
-    let balance_before = token_client.balance(user);
-
-    operation();
-
-    let balance_after = token_client.balance(user);
-    let actual_delta = balance_after - balance_before;
-
-    assert_eq!(
-        actual_delta, expected_delta,
-        "Expected balance change of {}, got {}",
-        expected_delta, actual_delta
-    );
 }
 
 /// Create multiple users with balances
@@ -195,11 +135,7 @@ pub fn place_bet_helper(
 }
 
 /// Resolve market and verify status
-pub fn resolve_and_verify(
-    client: &PredictIQClient,
-    market_id: u64,
-    winning_outcome: u32,
-) {
+pub fn resolve_and_verify(client: &PredictIQClient, market_id: u64, winning_outcome: u32) {
     client.resolve_market(&market_id, &winning_outcome);
     assert_market_status(client, market_id, predict_iq::types::MarketStatus::Resolved);
 }

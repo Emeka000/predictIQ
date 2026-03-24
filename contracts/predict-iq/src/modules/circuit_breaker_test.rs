@@ -58,10 +58,7 @@ fn test_pause_blocks_operations() {
 
     let options = Vec::from_array(
         &env,
-        [
-            String::from_str(&env, "Yes"),
-            String::from_str(&env, "No"),
-        ],
+        [String::from_str(&env, "Yes"), String::from_str(&env, "No")],
     );
 
     let oracle_config = OracleConfig {
@@ -103,10 +100,7 @@ fn test_unpause_allows_operations() {
 
     let options = Vec::from_array(
         &env,
-        [
-            String::from_str(&env, "Yes"),
-            String::from_str(&env, "No"),
-        ],
+        [String::from_str(&env, "Yes"), String::from_str(&env, "No")],
     );
 
     let oracle_config = OracleConfig {
@@ -171,10 +165,7 @@ fn test_require_closed_when_open() {
 
     let options = Vec::from_array(
         &env,
-        [
-            String::from_str(&env, "Yes"),
-            String::from_str(&env, "No"),
-        ],
+        [String::from_str(&env, "Yes"), String::from_str(&env, "No")],
     );
 
     let oracle_config = OracleConfig {

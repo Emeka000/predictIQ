@@ -36,10 +36,7 @@ fn create_simple_market(
 ) -> u64 {
     let options = Vec::from_array(
         env,
-        [
-            String::from_str(env, "Yes"),
-            String::from_str(env, "No"),
-        ],
+        [String::from_str(env, "Yes"), String::from_str(env, "No")],
     );
 
     let oracle_config = OracleConfig {
@@ -326,7 +323,14 @@ fn test_referral_rewards_tracked() {
     let market_id = create_simple_market(&client, &env, &user, &token);
 
     // Place bet with referrer
-    client.place_bet(&user, &market_id, &0, &1000, &token, &Some(referrer.clone()));
+    client.place_bet(
+        &user,
+        &market_id,
+        &0,
+        &1000,
+        &token,
+        &Some(referrer.clone()),
+    );
 
     // Referrer should have pending rewards
     let rewards = client.claim_referral_rewards(&referrer, &token);

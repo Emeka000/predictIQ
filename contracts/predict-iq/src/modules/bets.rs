@@ -31,21 +31,7 @@ pub fn place_bet(
 
     // Validate parent market conditions for conditional markets
     if market.parent_id > 0 {
-        let parent_market =
-            markets::get_market(e, market.parent_id).ok_or(ErrorCode::MarketNotFound)?;
-
-        // Parent must be resolved
-        if parent_market.status != MarketStatus::Resolved {
-            return Err(ErrorCode::ParentMarketNotResolved);
-        }
-
-        // Parent must have resolved to the required outcome
-        let parent_winning_outcome = parent_market
-            .winning_outcome
-            .ok_or(ErrorCode::ParentMarketNotResolved)?;
-        if parent_winning_outcome != market.parent_outcome_idx {
-            return Err(ErrorCode::ParentMarketInvalidOutcome);
-        }
+        markets::validate_parent_market(e, market.parent_id, market.parent_outcome_idx)?;
     }
 
     if e.ledger().timestamp() >= market.deadline {

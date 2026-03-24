@@ -15,19 +15,19 @@ fn create_test_env() -> (Env, Address, PredictIQClient<'static>) {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, PredictIQ);
+    let contract_id = env.register(PredictIQ, ());
     let client = PredictIQClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
-    let _ = client.initialize(&admin, &100);
+    client.initialize(&admin, &100);
 
     (env, admin, client)
 }
 
 fn create_options(env: &Env, count: u32) -> Vec<String> {
     let mut options = Vec::new(env);
-    for i in 0..count {
-        options.push_back(String::from_str(env, &format!("Option{}", i)));
+    for _ in 0..count {
+        options.push_back(String::from_str(env, "x"));
     }
     options
 }
@@ -37,6 +37,8 @@ fn create_oracle_config(env: &Env) -> predict_iq::types::OracleConfig {
         oracle_address: Address::generate(env),
         feed_id: String::from_str(env, "test_feed"),
         min_responses: Some(1),
+        max_staleness_seconds: 3600,
+        max_confidence_bps: 200,
     }
 }
 
@@ -48,7 +50,6 @@ fn bench_create_market_10_outcomes() {
     let oracle_config = create_oracle_config(&env);
     let native_token = Address::generate(&env);
 
-    let native_token = Address::generate(&env);
     let result = client.try_create_market(
         &admin,
         &String::from_str(&env, "10 Outcome Market"),
@@ -58,13 +59,9 @@ fn bench_create_market_10_outcomes() {
         &oracle_config,
         &predict_iq::types::MarketTier::Basic,
         &native_token,
-        &predict_iq::types::MarketTier::Basic,
-        &native_token,
+        &0,
+        &0,
     );
-
-    println!("=== 10 Outcome Market ===");
-    println!("Result: {:?}", result);
-    println!("");
 
     assert!(result.is_ok());
 }
@@ -75,8 +72,8 @@ fn bench_create_market_50_outcomes() {
 
     let options = create_options(&env, 50);
     let oracle_config = create_oracle_config(&env);
-
     let native_token = Address::generate(&env);
+
     let result = client.try_create_market(
         &admin,
         &String::from_str(&env, "50 Outcome Market"),
@@ -86,11 +83,9 @@ fn bench_create_market_50_outcomes() {
         &oracle_config,
         &predict_iq::types::MarketTier::Basic,
         &native_token,
+        &0,
+        &0,
     );
-
-    println!("=== 50 Outcome Market ===");
-    println!("Result: {:?}", result);
-    println!("");
 
     assert!(result.is_ok());
 }
@@ -101,8 +96,8 @@ fn bench_create_market_100_outcomes() {
 
     let options = create_options(&env, 100);
     let oracle_config = create_oracle_config(&env);
-
     let native_token = Address::generate(&env);
+
     let result = client.try_create_market(
         &admin,
         &String::from_str(&env, "100 Outcome Market"),
@@ -112,11 +107,9 @@ fn bench_create_market_100_outcomes() {
         &oracle_config,
         &predict_iq::types::MarketTier::Basic,
         &native_token,
+        &0,
+        &0,
     );
-
-    println!("=== 100 Outcome Market ===");
-    println!("Result: {:?}", result);
-    println!("");
 
     assert!(result.is_ok());
 }
@@ -127,8 +120,8 @@ fn bench_place_multiple_bets() {
 
     let options = create_options(&env, 10);
     let oracle_config = create_oracle_config(&env);
-
     let native_token = Address::generate(&env);
+
     let market_id = client.create_market(
         &admin,
         &String::from_str(&env, "Bet Test Market"),
@@ -138,19 +131,15 @@ fn bench_place_multiple_bets() {
         &oracle_config,
         &predict_iq::types::MarketTier::Basic,
         &native_token,
+        &0,
+        &0,
     );
 
-    let token = Address::generate(&env);
     let bettor = Address::generate(&env);
 
-    println!("=== Multiple Bet Placement ===");
-    println!("Market ID: {}", market_id);
-
-    for i in 1..=5 {
-        let result = client.try_place_bet(&bettor, &market_id, &0, &1000, &token);
-        println!("Bet {}: {:?}", i, result);
+    for _ in 1..=5 {
+        let _ = client.try_place_bet(&bettor, &market_id, &0, &1000, &native_token, &None);
     }
-    println!("");
 }
 
 #[test]
@@ -159,8 +148,8 @@ fn bench_resolve_market() {
 
     let options = create_options(&env, 50);
     let oracle_config = create_oracle_config(&env);
-
     let native_token = Address::generate(&env);
+
     let market_id = client.create_market(
         &admin,
         &String::from_str(&env, "Resolution Test Market"),
@@ -170,15 +159,11 @@ fn bench_resolve_market() {
         &oracle_config,
         &predict_iq::types::MarketTier::Basic,
         &native_token,
+        &0,
+        &0,
     );
 
     let result = client.try_resolve_market(&market_id, &0);
-
-    println!("=== Market Resolution ===");
-    println!("Market ID: {}", market_id);
-    println!("Result: {:?}", result);
-    println!("");
-
     assert!(result.is_ok());
 }
 
@@ -188,8 +173,8 @@ fn bench_get_resolution_metrics() {
 
     let options = create_options(&env, 50);
     let oracle_config = create_oracle_config(&env);
-
     let native_token = Address::generate(&env);
+
     let market_id = client.create_market(
         &admin,
         &String::from_str(&env, "Metrics Test Market"),
@@ -199,29 +184,22 @@ fn bench_get_resolution_metrics() {
         &oracle_config,
         &predict_iq::types::MarketTier::Basic,
         &native_token,
+        &0,
+        &0,
     );
 
     let _ = client.try_resolve_market(&market_id, &0);
-
-    let metrics = client.get_resolution_metrics(&market_id, &0);
-
-    println!("=== Resolution Metrics ===");
-    println!("Market ID: {}", market_id);
-    println!("Winner Count: {}", metrics.winner_count);
-    println!("Total Winning Stake: {}", metrics.total_winning_stake);
-    println!("Gas Estimate: {}", metrics.gas_estimate);
-    println!("");
+    let _metrics = client.get_resolution_metrics(&market_id, &0);
 }
 
 #[test]
 fn bench_reject_excessive_outcomes() {
     let (env, admin, client) = create_test_env();
 
-    // Try to create market with 101 outcomes (should fail)
     let options = create_options(&env, 101);
     let oracle_config = create_oracle_config(&env);
-
     let native_token = Address::generate(&env);
+
     let result = client.try_create_market(
         &admin,
         &String::from_str(&env, "Too Many Outcomes"),
@@ -231,13 +209,10 @@ fn bench_reject_excessive_outcomes() {
         &oracle_config,
         &predict_iq::types::MarketTier::Basic,
         &native_token,
+        &0,
+        &0,
     );
 
-    println!("=== Excessive Outcomes Test ===");
-    println!("Result: {:?}", result);
-    println!("");
-
-    // Should return error
     assert!(result.is_err());
 }
 
@@ -245,13 +220,10 @@ fn bench_reject_excessive_outcomes() {
 fn bench_full_market_lifecycle() {
     let (env, admin, client) = create_test_env();
 
-    println!("=== Full Market Lifecycle ===");
-
-    // Create market
     let options = create_options(&env, 10);
     let oracle_config = create_oracle_config(&env);
-
     let native_token = Address::generate(&env);
+
     let market_id = client.create_market(
         &admin,
         &String::from_str(&env, "Lifecycle Test"),
@@ -261,32 +233,19 @@ fn bench_full_market_lifecycle() {
         &oracle_config,
         &predict_iq::types::MarketTier::Basic,
         &native_token,
+        &0,
+        &0,
     );
-    println!("1. Market created: {}", market_id);
 
-    // Place bets
-    let token = Address::generate(&env);
     let bettor1 = Address::generate(&env);
     let bettor2 = Address::generate(&env);
 
-    let _ = client.try_place_bet(&bettor1, &market_id, &0, &1000, &token);
-    let _ = client.try_place_bet(&bettor2, &market_id, &1, &2000, &token);
-    println!("2. Bets placed");
+    let _ = client.try_place_bet(&bettor1, &market_id, &0, &1000, &native_token, &None);
+    let _ = client.try_place_bet(&bettor2, &market_id, &1, &2000, &native_token, &None);
 
-    // Resolve market
     let _ = client.try_resolve_market(&market_id, &0);
-    println!("3. Market resolved");
 
-    // Get metrics
-    let metrics = client.get_resolution_metrics(&market_id, &0);
-    println!(
-        "4. Metrics retrieved: {} winners, {} stake",
-        metrics.winner_count, metrics.total_winning_stake
-    );
+    let _metrics = client.get_resolution_metrics(&market_id, &0);
 
-    // Claim winnings
-    let _ = client.try_claim_winnings(&bettor1, &market_id, &token);
-    println!("5. Winnings claimed");
-
-    println!("");
+    let _ = client.try_claim_winnings(&bettor1, &market_id, &native_token);
 }
