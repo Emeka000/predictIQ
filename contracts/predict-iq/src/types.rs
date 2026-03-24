@@ -91,7 +91,9 @@ pub struct LockedTokens {
 pub struct OracleConfig {
     pub oracle_address: Address,
     pub feed_id: String,
-    pub min_responses: Option<u32>, // Optimized: None defaults to 1
+    pub min_responses: Option<u32>,
+    pub max_staleness_seconds: u64,
+    pub max_confidence_bps: i128,
 }
 
 // Gas optimization constants
@@ -111,6 +113,7 @@ pub enum ConfigKey {
     GuardianSet,
     PendingUpgrade,
     UpgradeVotes,
+    GovernanceToken,
 }
 
 #[contracttype]

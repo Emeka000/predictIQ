@@ -80,8 +80,9 @@ pub fn withdraw_refund(e: &Env, bettor: Address, market_id: u64) -> Result<i128,
     let refund_amount = bet.amount;
     
     e.storage().persistent().remove(&bet_key);
-    
+
     // Use SAC-safe transfer for refund
+    e.current_contract_address().require_auth();
     sac::safe_transfer(e, &market.token_address, &e.current_contract_address(), &bettor, &refund_amount)?;
     
     e.events().publish(

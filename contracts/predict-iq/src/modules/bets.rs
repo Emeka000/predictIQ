@@ -141,6 +141,7 @@ pub fn claim_winnings(
 
     // Transfer winnings to bettor
     let client = token::Client::new(e, &token_address);
+    e.current_contract_address().require_auth();
     client.transfer(&e.current_contract_address(), &bettor, &winnings);
 
     // Remove bet record
@@ -178,6 +179,7 @@ pub fn withdraw_refund(
 
     // Transfer refund to bettor
     let client = token::Client::new(e, &token_address);
+    e.current_contract_address().require_auth();
     client.transfer(&e.current_contract_address(), &bettor, &refund_amount);
 
     // Remove bet record

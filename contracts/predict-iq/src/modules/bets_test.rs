@@ -1,9 +1,10 @@
 #![cfg(test)]
 use crate::errors::ErrorCode;
-use crate::types::{BetKey, Market, MarketStatus, MarketTier, OracleConfig};
+use crate::types::{MarketStatus, MarketTier, OracleConfig};
 use crate::{PredictIQ, PredictIQClient};
 use soroban_sdk::{
-    testutils::Address as _, token, Address, Env, String, Vec,
+    testutils::{Address as _, Ledger},
+    token, Address, Env, String, Vec,
 };
 
 fn setup_test_with_token() -> (Env, PredictIQClient<'static>, Address, Address, Address) {
@@ -45,6 +46,8 @@ fn create_simple_market(
         oracle_address: Address::generate(env),
         feed_id: String::from_str(env, "test"),
         min_responses: Some(1),
+        max_staleness_seconds: 3600,
+        max_confidence_bps: 200,
     };
 
     client.create_market(
@@ -269,9 +272,10 @@ fn test_winnings_calculation_single_winner() {
     // Resolve with outcome 0 (user1 wins)
     client.resolve_market(&market_id, &0);
 
-    let balance_before = token_client.balance(&user1);
+    let token_regular = token::Client::new(&env, &token);
+    let balance_before = token_regular.balance(&user1);
     let winnings = client.claim_winnings(&user1, &market_id, &token);
-    let balance_after = token_client.balance(&user1);
+    let balance_after = token_regular.balance(&user1);
 
     // User1 should get their 1000 back plus share of losing pool (minus fees)
     assert!(winnings > 1000);
@@ -326,7 +330,7 @@ fn test_referral_rewards_tracked() {
 
     // Referrer should have pending rewards
     let rewards = client.claim_referral_rewards(&referrer, &token);
-    assert!(rewards.is_ok());
+    assert!(rewards > 0);
 }
 
 #[test]

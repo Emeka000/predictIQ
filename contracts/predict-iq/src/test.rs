@@ -32,6 +32,8 @@ fn create_test_market(
         oracle_address: Address::generate(e),
         feed_id: String::from_str(e, "test_feed"),
         min_responses: Some(1),
+        max_staleness_seconds: 3600,
+        max_confidence_bps: 200,
     };
 
     client.create_market(
@@ -75,9 +77,13 @@ fn test_market_creation_fails_without_deposit() {
             oracle_address: Address::generate(&e),
             feed_id: String::from_str(&e, "test"),
             min_responses: Some(1),
+        max_staleness_seconds: 3600,
+        max_confidence_bps: 200,
         },
         &types::MarketTier::Basic,
         &native_token,
+        &0,
+        &0,
     );
 
     // Will fail due to missing token contract (simulates insufficient balance)
@@ -300,7 +306,7 @@ fn test_place_bet_blocked_when_paused() {
     client.pause();
 
     // Try to place bet - should fail with ContractPaused error
-    let result = client.try_place_bet(&bettor, &market_id, &0, &1000, &token_address);
+    let result = client.try_place_bet(&bettor, &market_id, &0, &1000, &token_address, &None);
     assert_eq!(result, Err(Ok(ErrorCode::ContractPaused)));
 }
 
@@ -368,7 +374,7 @@ fn test_only_guardian_can_unpause() {
     let token_address = Address::generate(&e);
 
     // This should succeed now that contract is unpaused
-    let result = client.try_place_bet(&bettor, &market_id, &0, &1000, &token_address);
+    let result = client.try_place_bet(&bettor, &market_id, &0, &1000, &token_address, &None);
     assert_ne!(result, Err(Ok(ErrorCode::ContractPaused)));
 }
 
@@ -774,6 +780,8 @@ fn test_create_conditional_market_parent_not_resolved() {
         oracle_address: Address::generate(&e),
         feed_id: String::from_str(&e, "test_feed"),
         min_responses: Some(1),
+        max_staleness_seconds: 3600,
+        max_confidence_bps: 200,
     };
 
     let result = client.try_create_market(
@@ -823,6 +831,8 @@ fn test_create_conditional_market_parent_wrong_outcome() {
         oracle_address: Address::generate(&e),
         feed_id: String::from_str(&e, "test_feed"),
         min_responses: Some(1),
+        max_staleness_seconds: 3600,
+        max_confidence_bps: 200,
     };
 
     let result = client.try_create_market(
@@ -872,6 +882,8 @@ fn test_create_conditional_market_success() {
         oracle_address: Address::generate(&e),
         feed_id: String::from_str(&e, "test_feed"),
         min_responses: Some(1),
+        max_staleness_seconds: 3600,
+        max_confidence_bps: 200,
     };
 
     let child_id = client.create_market(
@@ -930,6 +942,8 @@ fn test_place_bet_on_conditional_market_parent_not_resolved() {
         oracle_address: Address::generate(&e),
         feed_id: String::from_str(&e, "test_feed"),
         min_responses: Some(1),
+        max_staleness_seconds: 3600,
+        max_confidence_bps: 200,
     };
 
     let child_id = client.create_market(
@@ -950,7 +964,7 @@ fn test_place_bet_on_conditional_market_parent_not_resolved() {
     // For this test, we'll just verify the bet placement logic checks parent status
 
     // Try to place bet - should succeed since parent is resolved with correct outcome
-    let result = client.try_place_bet(&bettor, &child_id, &0, &1000, &token_address);
+    let result = client.try_place_bet(&bettor, &child_id, &0, &1000, &token_address, &None);
 
     // Will fail due to missing token contract, but not due to parent validation
     assert_ne!(result, Err(Ok(ErrorCode::ParentMarketNotResolved)));
@@ -988,6 +1002,8 @@ fn test_place_bet_on_conditional_market_parent_wrong_outcome() {
         oracle_address: Address::generate(&e),
         feed_id: String::from_str(&e, "test_feed"),
         min_responses: Some(1),
+        max_staleness_seconds: 3600,
+        max_confidence_bps: 200,
     };
 
     let child_id = client.create_market(
@@ -1007,7 +1023,7 @@ fn test_place_bet_on_conditional_market_parent_wrong_outcome() {
     // In production, this would be prevented, but we test the validation logic
 
     // Try to place bet - should succeed since parent resolved correctly
-    let result = client.try_place_bet(&bettor, &child_id, &0, &1000, &token_address);
+    let result = client.try_place_bet(&bettor, &child_id, &0, &1000, &token_address, &None);
 
     // Will fail due to missing token contract, but not due to parent validation
     assert_ne!(result, Err(Ok(ErrorCode::ParentMarketInvalidOutcome)));
@@ -1067,6 +1083,8 @@ fn test_multi_level_conditional_markets() {
         oracle_address: Address::generate(&e),
         feed_id: String::from_str(&e, "test_feed"),
         min_responses: Some(1),
+        max_staleness_seconds: 3600,
+        max_confidence_bps: 200,
     };
 
     let level2_id = client.create_market(
@@ -1134,6 +1152,8 @@ fn test_create_conditional_market_invalid_parent_outcome_idx() {
         oracle_address: Address::generate(&e),
         feed_id: String::from_str(&e, "test_feed"),
         min_responses: Some(1),
+        max_staleness_seconds: 3600,
+        max_confidence_bps: 200,
     };
 
     let result = client.try_create_market(
