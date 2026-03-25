@@ -3,7 +3,7 @@ use crate::types::{
     ConfigKey, Guardian, PendingUpgrade, MAJORITY_THRESHOLD_PERCENT, TIMELOCK_DURATION,
     GOV_TTL_LOW_THRESHOLD, GOV_TTL_HIGH_THRESHOLD,
 };
-use soroban_sdk::{Address, Env, String, Vec};
+use soroban_sdk::{Address, BytesN, Env, Vec};
 
 /// Extend TTL for a governance key so it never expires during long inactivity.
 /// Called after every write to a governance storage slot.
@@ -89,13 +89,8 @@ pub fn remove_guardian(e: &Env, address: Address) -> Result<(), ErrorCode> {
 
 /// Initiate a contract upgrade. Requires admin authorization.
 /// Starts a 48-hour timelock and requires majority vote to execute.
-pub fn initiate_upgrade(e: &Env, wasm_hash: String) -> Result<(), ErrorCode> {
+pub fn initiate_upgrade(e: &Env, wasm_hash: BytesN<32>) -> Result<(), ErrorCode> {
     crate::modules::admin::require_admin(e)?;
-
-    // Validate WASM hash is not empty
-    if wasm_hash.is_empty() {
-        return Err(ErrorCode::InvalidWasmHash);
-    }
 
     // Check if an upgrade is already pending
     if e.storage().persistent().has(&ConfigKey::PendingUpgrade) {
@@ -217,10 +212,8 @@ fn is_majority_met(e: &Env, pending_upgrade: &PendingUpgrade) -> bool {
 }
 
 /// Execute the upgrade if timelock is satisfied and majority voted in favor.
-/// This does NOT directly call update_current_contract_wasm (that's a host function).
-/// Instead, it validates conditions and clears the pending upgrade.
-/// The caller is responsible for invoking the host function.
-pub fn execute_upgrade(e: &Env) -> Result<String, ErrorCode> {
+/// This directly invokes the Soroban host upgrade function.
+pub fn execute_upgrade(e: &Env) -> Result<(), ErrorCode> {
     // Verify timelock has passed
     if !is_timelock_satisfied(e)? {
         return Err(ErrorCode::TimelockActive);
@@ -238,7 +231,10 @@ pub fn execute_upgrade(e: &Env) -> Result<String, ErrorCode> {
     // Clear pending upgrade
     e.storage().persistent().remove(&ConfigKey::PendingUpgrade);
 
-    Ok(wasm_hash)
+    // Execute host-level contract code upgrade.
+    e.deployer().update_current_contract_wasm(wasm_hash);
+
+    Ok(())
 }
 
 /// Get vote statistics for the pending upgrade.

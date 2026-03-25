@@ -1,7 +1,7 @@
 #![cfg(test)]
 use super::*;
 use soroban_sdk::testutils::{Address as _, Ledger as _};
-use soroban_sdk::{token, Address, Env, String, Vec};
+use soroban_sdk::{token, Address, BytesN, Env, String, Vec};
 
 fn setup_test_env() -> (Env, Address, soroban_sdk::Address, PredictIQClient<'static>) {
     let e = Env::default();
@@ -14,6 +14,10 @@ fn setup_test_env() -> (Env, Address, soroban_sdk::Address, PredictIQClient<'sta
     client.initialize(&admin, &100); // 1% fee
 
     (e, admin, contract_id, client)
+}
+
+fn upgrade_wasm_hash(e: &Env) -> BytesN<32> {
+    BytesN::from_array(e, &[7; 32])
 }
 
 fn create_test_market(
@@ -467,7 +471,7 @@ fn test_initiate_upgrade_starts_timelock() {
 
     client.initialize_guardians(&guardians);
 
-    let wasm_hash = String::from_str(&e, "abcd1234");
+    let wasm_hash = upgrade_wasm_hash(&e);
 
     // Set initial ledger time
     e.ledger().set_timestamp(1000);
@@ -494,7 +498,7 @@ fn test_execute_upgrade_before_timelock_fails() {
 
     client.initialize_guardians(&guardians);
 
-    let wasm_hash = String::from_str(&e, "abcd1234");
+    let wasm_hash = upgrade_wasm_hash(&e);
     e.ledger().set_timestamp(1000);
 
     client.initiate_upgrade(&wasm_hash);
@@ -520,7 +524,7 @@ fn test_execute_upgrade_after_timelock_succeeds() {
 
     client.initialize_guardians(&guardians);
 
-    let wasm_hash = String::from_str(&e, "abcd1234");
+    let wasm_hash = upgrade_wasm_hash(&e);
     e.ledger().set_timestamp(1000);
 
     client.initiate_upgrade(&wasm_hash);
@@ -535,7 +539,6 @@ fn test_execute_upgrade_after_timelock_succeeds() {
     let result = client.try_execute_upgrade();
     assert!(result.is_ok());
 
-    let _returned_hash = result.unwrap();
     // Verify pending upgrade is cleared after execution
     let pending = client.get_pending_upgrade();
     assert!(pending.is_none());
@@ -565,7 +568,7 @@ fn test_insufficient_votes_to_execute() {
 
     client.initialize_guardians(&guardians);
 
-    let wasm_hash = String::from_str(&e, "abcd1234");
+    let wasm_hash = upgrade_wasm_hash(&e);
     e.ledger().set_timestamp(1000);
 
     client.initiate_upgrade(&wasm_hash);
@@ -605,7 +608,7 @@ fn test_majority_vote_required() {
 
     client.initialize_guardians(&guardians);
 
-    let wasm_hash = String::from_str(&e, "abcd1234");
+    let wasm_hash = upgrade_wasm_hash(&e);
     e.ledger().set_timestamp(1000);
 
     client.initiate_upgrade(&wasm_hash);
@@ -635,7 +638,7 @@ fn test_cannot_vote_twice() {
 
     client.initialize_guardians(&guardians);
 
-    let wasm_hash = String::from_str(&e, "abcd1234");
+    let wasm_hash = upgrade_wasm_hash(&e);
     e.ledger().set_timestamp(1000);
 
     client.initiate_upgrade(&wasm_hash);
@@ -663,7 +666,7 @@ fn test_only_guardians_can_vote() {
 
     client.initialize_guardians(&guardians);
 
-    let wasm_hash = String::from_str(&e, "abcd1234");
+    let wasm_hash = upgrade_wasm_hash(&e);
     e.ledger().set_timestamp(1000);
 
     client.initiate_upgrade(&wasm_hash);
@@ -692,7 +695,7 @@ fn test_get_upgrade_votes() {
 
     client.initialize_guardians(&guardians);
 
-    let wasm_hash = String::from_str(&e, "abcd1234");
+    let wasm_hash = upgrade_wasm_hash(&e);
     e.ledger().set_timestamp(1000);
 
     client.initiate_upgrade(&wasm_hash);
@@ -736,7 +739,7 @@ fn test_persistent_state_preserved_on_upgrade() {
     assert_eq!(stored_fee, 100);
 
     // Initiate upgrade
-    let wasm_hash = String::from_str(&e, "abcd1234");
+    let wasm_hash = upgrade_wasm_hash(&e);
     e.ledger().set_timestamp(1000);
     client.initiate_upgrade(&wasm_hash);
 
@@ -1300,7 +1303,7 @@ fn test_pending_upgrade_survives_3_months_inactivity() {
     });
     client.initialize_guardians(&guardians);
 
-    let wasm_hash = String::from_str(&e, "deadbeef1234");
+    let wasm_hash = upgrade_wasm_hash(&e);
     e.ledger().with_mut(|li| li.timestamp = 1000);
 
     client.initiate_upgrade(&wasm_hash);
@@ -1354,7 +1357,8 @@ fn test_vote_on_upgrade_refreshes_ttl() {
     client.initialize_guardians(&guardians);
 
     e.ledger().with_mut(|li| li.timestamp = 1000);
-    client.initiate_upgrade(&String::from_str(&e, "cafebabe"));
+    let wasm_hash = upgrade_wasm_hash(&e);
+    client.initiate_upgrade(&wasm_hash);
 
     // Vote refreshes the TTL on PendingUpgrade
     client.vote_for_upgrade(&guardian, &true);

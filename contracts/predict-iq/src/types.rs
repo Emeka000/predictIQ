@@ -1,4 +1,4 @@
-use soroban_sdk::{contracttype, Address, Map, String, Vec};
+use soroban_sdk::{contracttype, Address, BytesN, Map, String, Vec};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -142,7 +142,7 @@ pub struct Guardian {
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PendingUpgrade {
-    pub wasm_hash: String,
+    pub wasm_hash: BytesN<32>,
     pub initiated_at: u64,
     pub votes_for: Vec<Address>,
     pub votes_against: Vec<Address>,
