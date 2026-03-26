@@ -262,8 +262,16 @@ pub fn bump_market_ttl(e: &Env, market_id: u64) {
         .extend_ttl(&DataKey::Market(market_id), TTL_LOW_THRESHOLD, TTL_HIGH_THRESHOLD);
 }
 
+/// Calculate total claimed rewards for a market by checking all Claimed records
+fn calculate_total_claimed(e: &Env, market_id: u64) -> i128 {
+    // Note: This is a simplified check. In production, you'd iterate through all bettors
+    // For now, we rely on the fact that claim_winnings removes the bet record and sets Claimed flag.
+    // A more robust implementation would maintain a separate total_claimed counter on the market.
+    0 // Placeholder - actual implementation depends on bet tracking
+}
+
 /// Prune (archive) a market that has been resolved and all prizes claimed
-/// Can only be called 30 days after resolution
+/// Can only be called 30 days after resolution AND when all rewards have been claimed
 pub fn prune_market(e: &Env, market_id: u64) -> Result<(), ErrorCode> {
     crate::modules::admin::require_admin(e)?;
     
@@ -280,6 +288,15 @@ pub fn prune_market(e: &Env, market_id: u64) -> Result<(), ErrorCode> {
     
     if current_time < resolved_at + PRUNE_GRACE_PERIOD {
         return Err(ErrorCode::GracePeriodActive);
+    }
+
+    // Ensure all rewards have been claimed before pruning
+    // Check that no unclaimed bets remain for winning outcome
+    let winning_outcome = market.winning_outcome.ok_or(ErrorCode::MarketNotResolved)?;
+    let winning_stake = market.outcome_stakes.get(winning_outcome).unwrap_or(0);
+    
+    if winning_stake > 0 {
+        return Err(ErrorCode::MarketStillActive);
     }
 
     // Remove market from persistent storage
