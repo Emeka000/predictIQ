@@ -407,7 +407,7 @@ pub fn release_creation_deposit(
     market_id: u64,
     native_token: Address,
 ) -> Result<(), ErrorCode> {
-    let market = get_market(e, market_id).ok_or(ErrorCode::MarketNotFound)?;
+    let mut market = get_market(e, market_id).ok_or(ErrorCode::MarketNotFound)?;
 
     // Only the market creator may reclaim their own deposit
     market.creator.require_auth();
@@ -416,13 +416,15 @@ pub fn release_creation_deposit(
         return Err(ErrorCode::MarketNotActive);
     }
 
-    if market.creation_deposit > 0 {
+    let deposit = market.creation_deposit;
+    if deposit > 0 {
+        // Checks-effects-interactions: zero and persist before transferring so
+        // repeat calls cannot re-drain the deposit.
+        market.creation_deposit = 0;
+        update_market(e, market.clone());
+
         let token_client = token::Client::new(e, &native_token);
-        token_client.transfer(
-            &e.current_contract_address(),
-            &market.creator,
-            &market.creation_deposit,
-        );
+        token_client.transfer(&e.current_contract_address(), &market.creator, &deposit);
     }
 
     Ok(())

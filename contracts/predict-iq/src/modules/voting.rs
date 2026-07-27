@@ -2,7 +2,7 @@ use crate::errors::ErrorCode;
 use crate::modules::markets;
 // Issue #171: ConfigKey (including GovernanceToken variant) must be explicitly imported
 // from types. Previously missing, causing compilation failure in cast_vote.
-use crate::types::{ConfigKey, LockedTokens, MarketStatus, Vote};
+use crate::types::{ConfigKey, LockedTokens, MarketStatus, Vote, CANCEL_OUTCOME_INDEX};
 use soroban_sdk::{contracttype, token, Address, Env, IntoVal, Symbol, Val, Vec};
 
 #[contracttype]
@@ -32,7 +32,7 @@ pub fn cast_vote(
         return Err(ErrorCode::MarketNotDisputed);
     }
 
-    if outcome >= market.options.len() {
+    if outcome != CANCEL_OUTCOME_INDEX && outcome >= market.options.len() {
         return Err(ErrorCode::InvalidOutcome);
     }
 

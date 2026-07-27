@@ -253,6 +253,11 @@ fn internal_claim_amount(
 pub fn claim_winnings(e: &Env, bettor: Address, market_id: u64) -> Result<i128, ErrorCode> {
     bettor.require_auth();
 
+    // Claiming moves funds out of the contract, so it must respect the circuit
+    // breaker just like place_bet and withdraw_refund — a paused contract must
+    // not allow any token egress.
+    crate::modules::circuit_breaker::require_not_paused_for_high_risk(e)?;
+
     let market = markets::get_market(e, market_id).ok_or(ErrorCode::MarketNotFound)?;
 
     if market.status != MarketStatus::Resolved {

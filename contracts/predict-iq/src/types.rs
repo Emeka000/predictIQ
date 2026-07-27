@@ -104,6 +104,7 @@ pub struct OracleConfig {
 // Gas optimization constants
 pub const MAX_PUSH_PAYOUT_WINNERS: u32 = 50; // Threshold for switching to pull mode
 pub const MAX_OUTCOMES_PER_MARKET: u32 = 100; // Limit to prevent excessive iteration
+pub const CANCEL_OUTCOME_INDEX: u32 = u32::MAX; // Sentinel outcome for community cancel votes
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
